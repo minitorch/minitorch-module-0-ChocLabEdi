@@ -32,28 +32,72 @@ class Module:
     def train(self) -> None:
         "Set the mode of this module and all descendent modules to `train`."
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        # raise NotImplementedError("Need to implement for Task 0.4")
+        self.training = True
+        for i in self.modules():
+            i.training = True
+        return 
 
     def eval(self) -> None:
         "Set the mode of this module and all descendent modules to `eval`."
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        # raise NotImplementedError("Need to implement for Task 0.4")
+        self.training = False
+        for i in self.modules():
+            i.training = False
+        return 
 
     def named_parameters(self) -> Sequence[Tuple[str, Parameter]]:
         """
         Collect all the parameters of this module and its descendents.
-
+        
 
         Returns:
             The name and `Parameter` of each ancestor parameter.
         """
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        # raise NotImplementedError("Need to implement for Task 0.4")
+        params = []
+        p: Dict[str, Parameter] = self.__dict__['_parameters']
+        for k, v in p.items():
+            params.append((k, v))
+
+        subModTree = []
+        
+        for modName, mod in self._modules.items():
+            subModTree.append(modName)
+            pp: Dict[str, Parameter] = mod._parameters
+            prefix = '.'.join(subModTree) + '.'
+            for k, v in pp.items():
+                params.append((prefix + k, v))
+            
+            mm: Dict[str, Module] = mod._modules
+
+            while len(mm) != 0: 
+                for modName, mod in mm.items():
+                    subModTree.append(modName)
+                    pp: Dict[str, Parameter] = mod._parameters
+                prefix = '.'.join(subModTree) + '.'
+                for k, v in pp.items():
+                    params.append((prefix + k, v))
+                
+                mm: Dict[str, Module] = mod._modules
+        
+        return params
+    
+
 
     def parameters(self) -> Sequence[Parameter]:
         "Enumerate over all the parameters of this module and its descendents."
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        # raise NotImplementedError("Need to implement for Task 0.4")
+        
+        params = []
+        for p in self.named_parameters():
+            params.append(p[1])
+        
+        return params
+
 
     def add_parameter(self, k: str, v: Any) -> Parameter:
         """
